@@ -1,0 +1,2 @@
+SELECT *
+FROM nhs_rtt_analysis.vw_provider_specialty_monthly;
