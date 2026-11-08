@@ -1,0 +1,490 @@
+// NHS RTT WAITING TIMES — POWER BI DAX MEASURES
+
+// NATIONAL KPI MEASURES
+
+Total Waiting =
+SUM(vw_national_monthly[total_waiting])
+
+Within 18 Weeks =
+SUM(vw_national_monthly[within_18_weeks])
+
+Over 18 Weeks =
+SUM(vw_national_monthly[over_18_weeks])
+
+% Within 18 Weeks =
+DIVIDE(
+    [Within 18 Weeks],
+    [Total Waiting],
+    0
+) * 100
+
+% Over 18 Weeks =
+DIVIDE(
+    [Over 18 Weeks],
+    [Total Waiting],
+    0
+) * 100
+
+52+ Weeks =
+SUM(vw_national_monthly[over_52_weeks])
+
+65+ Weeks =
+SUM(vw_national_monthly[over_65_weeks])
+
+78+ Weeks =
+SUM(vw_national_monthly[over_78_weeks])
+
+Provider Count =
+MAX(vw_national_monthly[providers])
+
+Latest Reporting Month =
+FORMAT(
+    MAX(vw_national_monthly[reporting_month]),
+    "MMM YYYY"
+)
+
+Previous Month Waiting =
+CALCULATE(
+    [Total Waiting],
+    DATEADD(
+        'Date'[Date],
+        -1,
+        MONTH
+    )
+)
+
+MoM Waiting Change =
+[Total Waiting] - [Previous Month Waiting]
+
+MoM Waiting Change % =
+DIVIDE(
+    [MoM Waiting Change],
+    [Previous Month Waiting],
+    0
+) * 100
+
+Previous Month % Within 18 =
+CALCULATE(
+    [% Within 18 Weeks],
+    DATEADD(
+        'Date'[Date],
+        -1,
+        MONTH
+    )
+)
+
+18 Week Change pp =
+[% Within 18 Weeks]
+- [Previous Month % Within 18]
+
+% 52+ Weeks =
+DIVIDE(
+    [52+ Weeks],
+    [Total Waiting],
+    0
+) * 100
+
+% 65+ Weeks =
+DIVIDE(
+    [65+ Weeks],
+    [Total Waiting],
+    0
+) * 100
+
+% 78+ Weeks =
+DIVIDE(
+    [78+ Weeks],
+    [Total Waiting],
+    0
+) * 100
+
+
+// PROVIDER PAGE MEASURES
+
+Provider Total Waiting =
+SUM(vw_provider_monthly[total_waiting])
+
+Provider Within 18 Weeks =
+SUM(vw_provider_monthly[within_18_weeks])
+
+Provider % Within 18 Weeks =
+DIVIDE(
+    [Provider Within 18 Weeks],
+    [Provider Total Waiting],
+    0
+) * 100
+
+Provider 52+ Weeks =
+SUM(vw_provider_monthly[over_52_weeks])
+
+Provider 65+ Weeks =
+SUM(vw_provider_monthly[over_65_weeks])
+
+Provider 78+ Weeks =
+SUM(vw_provider_monthly[over_78_weeks])
+
+Provider Median Wait =
+MAX(vw_provider_monthly[median_wait_weeks])
+
+Provider P92 Wait =
+MAX(vw_provider_monthly[p92_wait_weeks])
+
+
+// SPECIALTY PAGE MEASURES
+
+Specialty Total Waiting =
+SUM(vw_specialty_monthly[total_waiting])
+
+Specialty Within 18 Weeks =
+SUM(vw_specialty_monthly[within_18_weeks])
+
+Specialty % Within 18 Weeks =
+DIVIDE(
+    [Specialty Within 18 Weeks],
+    [Specialty Total Waiting],
+    0
+) * 100
+
+Specialty 52+ Weeks =
+SUM(vw_specialty_monthly[over_52_weeks])
+
+Specialty 65+ Weeks =
+SUM(vw_specialty_monthly[over_65_weeks])
+
+Specialty 78+ Weeks =
+SUM(vw_specialty_monthly[over_78_weeks])
+
+
+// OPTIONAL DISPLAY MEASURES
+
+Waiting Change Display =
+VAR ChangeValue = [MoM Waiting Change]
+RETURN
+IF(
+    ISBLANK(ChangeValue),
+    BLANK(),
+    FORMAT(
+        ChangeValue,
+        "+#,##0;-#,##0;0"
+    )
+)
+
+18 Week Change Display =
+VAR ChangeValue = [18 Week Change pp]
+RETURN
+IF(
+    ISBLANK(ChangeValue),
+    BLANK(),
+    FORMAT(
+        ChangeValue,
+        "+0.00;-0.00;0.00"
+    ) & " pp"
+)
+
+// COMPARISON METRIC
+Comparison Metrics =
+DATATABLE(
+    "Metric", STRING,
+    "Sort Order", INTEGER,
+    {
+        {"Total Waiting List", 1},
+        {"% Within 18 Weeks", 2},
+        {"52+ Week Waits", 3},
+        {"65+ Week Waits", 4},
+        {"78+ Week Waits", 5}
+    }
+)
+
+
+// GLOUCESTERSHIRE COMPARISON
+Gloucestershire Comparison =
+VAR SelectedMetric =
+    SELECTEDVALUE('Comparison Metrics'[Metric])
+
+VAR TotalWaiting =
+    CALCULATE(
+        SUM(vw_provider_monthly[total_waiting]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR Within18 =
+    CALCULATE(
+        SUM(vw_provider_monthly[within_18_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR PctWithin18 =
+    DIVIDE(Within18, TotalWaiting)
+
+VAR Wait52 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_52_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR Wait65 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_65_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR Wait78 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_78_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+RETURN
+SWITCH(
+    SelectedMetric,
+    "Total Waiting List", FORMAT(TotalWaiting, "#,##0"),
+    "% Within 18 Weeks", FORMAT(PctWithin18, "0.0%"),
+    "52+ Week Waits", FORMAT(Wait52, "#,##0"),
+    "65+ Week Waits", FORMAT(Wait65, "#,##0"),
+    "78+ Week Waits", FORMAT(Wait78, "#,##0")
+)
+
+
+
+// ENGLAND MEASURES
+England Comparison =
+VAR SelectedMetric =
+    SELECTEDVALUE('Comparison Metrics'[Metric])
+
+VAR TotalWaiting =
+    CALCULATE(
+        SUM(vw_provider_monthly[total_waiting]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR Within18 =
+    CALCULATE(
+        SUM(vw_provider_monthly[within_18_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR PctWithin18 =
+    DIVIDE(Within18, TotalWaiting)
+
+VAR Wait52 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_52_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR Wait65 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_65_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR Wait78 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_78_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+RETURN
+SWITCH(
+    SelectedMetric,
+    "Total Waiting List", FORMAT(TotalWaiting, "#,##0"),
+    "% Within 18 Weeks", FORMAT(PctWithin18, "0.0%"),
+    "52+ Week Waits", FORMAT(Wait52, "#,##0"),
+    "65+ Week Waits", FORMAT(Wait65, "#,##0"),
+    "78+ Week Waits", FORMAT(Wait78, "#,##0")
+)
+
+
+
+// COMPARISON DIFFERENCE
+Comparison Difference =
+VAR SelectedMetric =
+    SELECTEDVALUE('Comparison Metrics'[Metric])
+
+VAR GlosTotal =
+    CALCULATE(
+        SUM(vw_provider_monthly[total_waiting]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR EnglandTotal =
+    CALCULATE(
+        SUM(vw_provider_monthly[total_waiting]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR GlosWithin =
+    CALCULATE(
+        SUM(vw_provider_monthly[within_18_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR EnglandWithin =
+    CALCULATE(
+        SUM(vw_provider_monthly[within_18_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR GlosPct =
+    DIVIDE(GlosWithin, GlosTotal)
+
+VAR EnglandPct =
+    DIVIDE(EnglandWithin, EnglandTotal)
+
+VAR Glos52 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_52_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR England52 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_52_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR Glos65 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_65_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR England65 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_65_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+VAR Glos78 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_78_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        ),
+        vw_provider_monthly[provider_code] = "RTE"
+    )
+
+VAR England78 =
+    CALCULATE(
+        SUM(vw_provider_monthly[over_78_weeks]),
+        REMOVEFILTERS(
+            vw_provider_monthly[region_code],
+            vw_provider_monthly[provider_code],
+            vw_provider_monthly[provider_name]
+        )
+    )
+
+RETURN
+SWITCH(
+    SelectedMetric,
+
+    "Total Waiting List",
+        "—",
+
+    "% Within 18 Weeks",
+        FORMAT(
+            (GlosPct - EnglandPct) * 100,
+            "+0.0;-0.0;0.0"
+        ) & " pp",
+
+    "52+ Week Waits",
+        FORMAT(
+            DIVIDE(Glos52 - England52, England52),
+            "+0.0%;-0.0%;0.0%"
+        ),
+
+    "65+ Week Waits",
+        FORMAT(
+            DIVIDE(Glos65 - England65, England65),
+            "+0.0%;-0.0%;0.0%"
+        ),
+
+    "78+ Week Waits",
+        FORMAT(
+            DIVIDE(Glos78 - England78, England78),
+            "+0.0%;-0.0%;0.0%"
+        )
+)
