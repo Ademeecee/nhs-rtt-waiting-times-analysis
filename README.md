@@ -42,29 +42,27 @@ The project was designed around the following questions:
 
 ## Project Workflow
 
-```text
-NHS England RTT Excel Files
-            │
-            ▼
-    01 Data Understanding
-            │
-            ▼
-       02 Data Cleaning
-            │
-            ▼
-03 Multi-Month Preparation
-            │
-            ▼
- 04 Exploratory Data Analysis
-            │
-            ▼
-       05 MySQL Analysis
-            │
-            ▼
-     06 Power BI Dashboard
-            │
-            ▼
-      Portfolio Insights
+```mermaid
+flowchart LR
+    A["NHS England RTT<br/>Excel Files"] --> B["01<br/>Data Understanding"]
+    B --> C["02<br/>Data Cleaning"]
+    C --> D["03<br/>Multi-Month<br/>Preparation"]
+    D --> E["04<br/>Exploratory Data<br/>Analysis"]
+    E --> F["05<br/>MySQL Analysis"]
+    F --> G["06<br/>Power BI Dashboard"]
+    G --> H["Insights &<br/>Recommendations"]
+
+    classDef source fill:#E8F1FB,stroke:#005EB8,stroke-width:2px,color:#003087;
+    classDef python fill:#EDF7F1,stroke:#007F3B,stroke-width:2px,color:#00401E;
+    classDef sql fill:#FFF4E5,stroke:#E87722,stroke-width:2px,color:#7A3510;
+    classDef powerbi fill:#FFF8CC,stroke:#D6A800,stroke-width:2px,color:#5C4800;
+    classDef output fill:#F2ECFA,stroke:#6F42C1,stroke-width:2px,color:#432874;
+
+    class A source;
+    class B,C,D,E python;
+    class F sql;
+    class G powerbi;
+    class H output;
 ```
 
 ---
