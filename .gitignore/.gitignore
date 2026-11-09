@@ -40,7 +40,7 @@ data/processed/*.csv
 # Keep folder structure
 !data/processed/.gitkeep
 
-NHS RTT MySQL.session.sql
+src/NHS RTT MySQL.session.sql
 
 # ==========================================
 # Power BI
