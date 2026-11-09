@@ -1,0 +1,84 @@
+# ==========================================
+# Python
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+
+# ==========================================
+# Raw NHS Data
+# ==========================================
+
+# Original downloaded Excel files can be large
+data/raw/*.xlsx
+data/raw/*.xls
+data/raw/monthly/*.xlsx
+data/raw/monthly/*.xls
+
+# Keep the folder itself in GitHub
+!data/raw/.gitkeep
+!data/raw/monthly/.gitkeep
+
+
+# ==========================================
+# Optional Processed Data
+# ==========================================
+
+# Ignore processed CSV files if they are large
+data/processed/*.csv
+
+# Keep folder structure
+!data/processed/.gitkeep
+
+NHS RTT MySQL.session.sql
+
+# ==========================================
+# Power BI
+# ==========================================
+
+# Power BI temporary/cache files
+*.pbit.tmp
+*.pbix.tmp
+
+# Uncomment this if your .pbix file is too large
+# powerbi/*.pbix
+
+
+# ==========================================
+# Operating System Files
+# ==========================================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+
+# ==========================================
+# IDE / Editor Files
+# ==========================================
+
+.vscode/
+.idea/
+
+
+# ==========================================
+# Temporary Files
+# ==========================================
+
+*.tmp
+*.temp
+*.log
+~$*
